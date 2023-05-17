@@ -5,6 +5,7 @@ import './App.css';
 function App() {
   const [news, setNews] = useState([]);
   const [category, setCategory] = useState('general');
+  const [darkMode, setDarkMode] = useState(false);
 
   const categories = [
     { name: 'General', value: 'general' },
@@ -18,7 +19,9 @@ function App() {
 
   useEffect(() => {
     const fetchData = async (category) => {
-      const response = await axios.get(`https://newsapi.org/v2/top-headlines?country=in&category=${category}&apiKey=5f12e3e98a5b4d7ea6c77c29ac9636d0`);
+      const response = await axios.get(
+        `https://newsapi.org/v2/top-headlines?country=in&category=${category}&apiKey=5f12e3e98a5b4d7ea6c77c29ac9636d0`
+      );
       setNews(response.data.articles);
     };
     fetchData(category);
@@ -30,9 +33,30 @@ function App() {
     return () => clearInterval(intervalId);
   }, [category]);
 
+  useEffect(() => {
+    if (darkMode) {
+      document.documentElement.classList.add('dark-mode');
+    } else {
+      document.documentElement.classList.remove('dark-mode');
+    }
+  }, [darkMode]);
+
+  const toggleDarkMode = () => {
+    setDarkMode(!darkMode);
+  };
+
   return (
-    <div className="app">
-      <header className="header sticky">
+    <div className="container">
+      <header className="header">
+        <div className="toggle-switch">
+          <input
+            type="checkbox"
+            id="darkModeToggle"
+            checked={darkMode}
+            onChange={toggleDarkMode}
+          />
+          <label htmlFor="darkModeToggle" className="toggle-label"></label>
+        </div>
         <h1>Latest News</h1>
         <div className="categories">
           {categories.map((cat) => (
@@ -47,9 +71,9 @@ function App() {
         </div>
       </header>
       <main className="main">
-        <ul className="news">
+        <div className="news">
           {news.map((article) => (
-            <li key={article.title} className="news-item">
+            <div key={article.title} className="news-item">
               <div className="news-image">
                 <img src={article.urlToImage} alt={article.title} />
               </div>
@@ -60,9 +84,9 @@ function App() {
                   Read more
                 </a>
               </div>
-            </li>
+            </div>
           ))}
-        </ul>
+        </div>
       </main>
     </div>
   );
