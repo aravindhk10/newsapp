@@ -20,7 +20,7 @@ function App() {
   useEffect(() => {
     const fetchData = async (category) => {
       const response = await axios.get(
-        `https://newsapi.org/v2/top-headlines?country=in&category=${category}&apiKey=5f12e3e98a5b4d7ea6c77c29ac9636d0`
+        `https://newsapi.org/v2/top-headlines?country=in&category=${category}&apiKey=acde7d5bdaa049debf38220165043dd3`
       );
       setNews(response.data.articles);
     };
@@ -43,6 +43,15 @@ function App() {
 
   const toggleDarkMode = () => {
     setDarkMode(!darkMode);
+  };
+
+  const playSummary = (summary) => {
+    if ('speechSynthesis' in window) {
+      const speech = new SpeechSynthesisUtterance(summary);
+      window.speechSynthesis.speak(speech);
+    } else {
+      console.log('Text-to-speech is not supported in this browser.');
+    }
   };
 
   return (
@@ -80,6 +89,12 @@ function App() {
               <div className="news-content">
                 <h2 className="news-title">{article.title}</h2>
                 <p className="news-description">{article.description}</p>
+                <button
+                  className="news-summary-button"
+                  onClick={() => playSummary(article.description)}
+                >
+                  Play Summary
+                </button>
                 <a className="news-read-more" href={article.url}>
                   Read more
                 </a>
