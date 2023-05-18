@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import axios from 'axios';
 import './App.css';
 
@@ -18,13 +18,32 @@ function App() {
     { name: 'Technology', value: 'technology' },
   ];
 
+  const cacheExpirationTime = 300000; // 5 minutes
+
+  const cache = useMemo(() => new Map(), []);
+
   useEffect(() => {
     const fetchData = async (category) => {
-      const response = await axios.get(
-        `https://newsapi.org/v2/top-headlines?country=in&category=${category}&apiKey=acde7d5bdaa049debf38220165043dd3`
-      );
-      setNews(response.data.articles);
+      if (cache.has(category)) {
+        const { data, timestamp } = cache.get(category);
+        const currentTime = Date.now();
+        if (currentTime - timestamp <= cacheExpirationTime) {
+          setNews(data);
+          return;
+        }
+      }
+
+      try {
+        const response = await axios.get(
+          `https://newsapi.org/v2/top-headlines?country=in&category=${category}&apiKey=5f12e3e98a5b4d7ea6c77c29ac9636d0`
+        );
+        setNews(response.data.articles);
+        cache.set(category, { data: response.data.articles, timestamp: Date.now() });
+      } catch (error) {
+        console.log('Error fetching data:', error);
+      }
     };
+
     fetchData(category);
 
     const intervalId = setInterval(() => {
@@ -32,7 +51,7 @@ function App() {
     }, 60000);
 
     return () => clearInterval(intervalId);
-  }, [category]);
+  }, [category, cache]);
 
   useEffect(() => {
     if (darkMode) {
