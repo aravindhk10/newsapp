@@ -6,6 +6,7 @@ function App() {
   const [news, setNews] = useState([]);
   const [category, setCategory] = useState('general');
   const [darkMode, setDarkMode] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
 
   const categories = [
     { name: 'General', value: 'general' },
@@ -54,6 +55,31 @@ function App() {
     }
   };
 
+  const handleShare = async (title, url) => {
+    try {
+      await navigator.share({
+        title,
+        url,
+      });
+    } catch (error) {
+      console.log('Error sharing:', error);
+    }
+  };
+
+  const handleSearch = async (e) => {
+    e.preventDefault();
+    if (searchQuery) {
+      try {
+        const response = await axios.get(
+          `https://newsapi.org/v2/everything?q=${searchQuery}&apiKey=5f12e3e98a5b4d7ea6c77c29ac9636d0`
+        );
+        setNews(response.data.articles);
+      } catch (error) {
+        console.log('Error searching:', error);
+      }
+    }
+  };
+
   return (
     <div className="container">
       <header className="header">
@@ -66,18 +92,28 @@ function App() {
           />
           <label htmlFor="darkModeToggle" className="toggle-label"></label>
         </div>
-        <h1>Latest News</h1>
+        <h1 className="header-title">Latest News</h1>
         <div className="categories">
           {categories.map((cat) => (
             <button
               key={cat.value}
               onClick={() => setCategory(cat.value)}
-              className={category === cat.value ? 'active' : ''}
+              className={`category-button ${category === cat.value ? 'active' : ''}`}
             >
               {cat.name}
             </button>
           ))}
         </div>
+        <form onSubmit={handleSearch} className="search-form">
+          <input
+            type="text"
+            placeholder="Search news..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="search-input"
+          />
+          <button type="submit" className="search-button">Search</button>
+        </form>
       </header>
       <main className="main">
         <div className="news">
@@ -89,6 +125,14 @@ function App() {
               <div className="news-content">
                 <h2 className="news-title">{article.title}</h2>
                 <p className="news-description">{article.description}</p>
+                <div className="news-share">
+                  <button
+                    className="news-share-button"
+                    onClick={() => handleShare(article.title, article.url)}
+                  >
+                    Share
+                  </button>
+                </div>
                 <button
                   className="news-summary-button"
                   onClick={() => playSummary(article.description)}
