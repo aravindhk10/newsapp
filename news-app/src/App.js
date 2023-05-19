@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import axios from 'axios';
 import './App.css';
+import { ReactComponent as Icon } from './share.svg';
 
 function App() {
   const [news, setNews] = useState([]);
@@ -144,14 +145,7 @@ function App() {
               <div className="news-content">
                 <h2 className="news-title">{article.title}</h2>
                 <p className="news-description">{article.description}</p>
-                <div className="news-share">
-                  <button
-                    className="news-share-button"
-                    onClick={() => handleShare(article.title, article.url)}
-                  >
-                    Share
-                  </button>
-                </div>
+
                 <button
                   className="news-summary-button"
                   onClick={() => playSummary(article.description)}
@@ -161,6 +155,13 @@ function App() {
                 <a className="news-read-more" href={article.url}>
                   Read more
                 </a>
+                <div className="news-share">
+                  <button
+                    className="news-share-button"
+                    onClick={() => handleShare(article.title, article.url)}
+                  ><Icon />
+                  </button>
+                </div>
               </div>
             </div>
           ))}
